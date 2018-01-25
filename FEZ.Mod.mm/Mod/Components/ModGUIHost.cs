@@ -50,6 +50,8 @@ namespace FezGame.Mod.Components {
 
         public ImVec3 ClearColor = new ImVec3(114f / 255f, 144f / 255f, 154f / 255f);
 
+        public bool IsGameWindowOpen = false;
+
         private bool FinishedLoading = false;
 
         private RenderTargetHandle GameRT;
@@ -112,9 +114,12 @@ namespace FezGame.Mod.Components {
 
             if (GameRT != null) {
                 TargetRenderingManager.Resolve(GameRT.Target, true);
-                // GraphicsDevice.Clear(new Color(ClearColor.x, ClearColor.y, ClearColor.z, 1f));
-                GraphicsDevice.SetBlendingMode(BlendingMode.Opaque);
-                TargetRenderingManager.DrawFullscreen(GameRT.Target);
+                if (IsGameWindowOpen) {
+                    GraphicsDevice.Clear(new Color(ClearColor.x, ClearColor.y, ClearColor.z, 1f));
+                } else {
+                    GraphicsDevice.SetBlendingMode(BlendingMode.Opaque);
+                    TargetRenderingManager.DrawFullscreen(GameRT.Target);
+                }
             }
 
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
@@ -139,22 +144,25 @@ namespace FezGame.Mod.Components {
         bool show_another_window = false;
         protected virtual void ImGuiLayout() {
             // Render to ImGui window. Works, but the render target is alpha-blended, causing minor issues.
-            /*
-            if (GameRT != null) {
-                ImGui.SetNextWindowPos(new ImVec2(-8f, -8f), ImGuiCond.Always);
-                ImGui.SetNextWindowSize(new ImVec2(GameRT.Target.Width + 8f, GameRT.Target.Height + 12f), ImGuiCond.Always);
+            if (GameRT != null && IsGameWindowOpen) {
+                // ImGui.SetNextWindowPos(new ImVec2(-8f, -8f), ImGuiCond.Always);
+                // ImGui.SetNextWindowSize(new ImVec2(GameRT.Target.Width, GameRT.Target.Height), ImGuiCond.Always);
+                ImGui.SetNextWindowSize(new ImVec2(GameRT.Target.Width / 2f, GameRT.Target.Height / 2f), ImGuiCond.Once);
+                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new ImVec2(0f, 0f));
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0f);
+                ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new ImVec2(0f, 0f));
+                ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f);
                 ImGui.Begin(
                     "Game",
+                    ref IsGameWindowOpen,
+                    ImGuiWindowFlags.NoFocusOnAppearing |
                     ImGuiWindowFlags.NoScrollbar |
                     ImGuiWindowFlags.NoScrollWithMouse |
                     ImGuiWindowFlags.NoCollapse |
-                    ImGuiWindowFlags.NoResize |
-                    ImGuiWindowFlags.NoFocusOnAppearing |
-                    ImGuiWindowFlags.NoMove |
-                    ImGuiWindowFlags.NoResize |
-                    ImGuiWindowFlags.NoBringToFrontOnFocus |
                     ImGuiWindowFlags.NoSavedSettings |
-                    ImGuiWindowFlags.NoTitleBar
+                    ImGuiWindowFlags.NoTitleBar |
+                    ImGuiWindowFlags.NoMove |
+                    ImGuiWindowFlags.NoResize
                 );
 
                 ImVec2 gameWindowSize = ImGui.GetWindowSize();
@@ -169,8 +177,9 @@ namespace FezGame.Mod.Components {
                 );
 
                 ImGui.End();
+
+                ImGui.PopStyleVar(4);
             }
-            */
 
             // 1. Show a simple window
             // Tip: if we don't call ImGui.Begin()/ImGui.End() the widgets appears in a window automatically called "Debug"
@@ -178,6 +187,7 @@ namespace FezGame.Mod.Components {
                 ImGui.Text("Hello, world!");
                 ImGui.SliderFloat("float", ref f, 0.0f, 1.0f, null, 1f);
                 ImGui.ColorEdit3("clear color", ref ClearColor, false);
+                if (ImGui.Button("Game Window")) IsGameWindowOpen = !IsGameWindowOpen;
                 if (ImGui.Button("Test Window")) show_test_window = !show_test_window;
                 if (ImGui.Button("Another Window")) show_another_window = !show_another_window;
                 ImGui.Text(string.Format("Application average {0:F3} ms/frame ({1:F1} FPS)", 1000f / ImGui.GetIO().Framerate, ImGui.GetIO().Framerate));
