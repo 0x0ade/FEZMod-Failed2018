@@ -19,6 +19,7 @@ namespace FezGame.Mod {
 
         public static void LoadComponentReplacements(Fez game) {
             ServiceHelperHooks.ReplacementServices["FezEngine.Services.MouseStateManager"] = new ModMouseStateManager();
+            ServiceHelperHooks.ReplacementServices["FezEngine.Services.KeyboardStateManager"] = new ModKeyboardStateManager();
         }
 
         public static void LoadComponents(Fez game) {

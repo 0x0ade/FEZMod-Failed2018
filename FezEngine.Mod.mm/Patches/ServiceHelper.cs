@@ -3,6 +3,7 @@
 using FezEngine.Mod;
 using FezEngine.Mod.Services;
 using Microsoft.Xna.Framework;
+using MonoMod;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace FezEngine.Tools {
     static class patch_ServiceHelper {
+
+        [MonoModIgnore]
+        private static readonly List<object> services;
 
         public static extern void orig_AddComponent(IGameComponent component, bool addServices);
         public static void AddComponent(IGameComponent component, bool addServices) {
@@ -29,7 +33,9 @@ namespace FezEngine.Tools {
         public static extern void orig_AddService(object service);
         public static void AddService(object service) {
             object repl;
+            // Console.WriteLine($"Adding service {service.GetType().FullName}");
             if (ServiceHelperHooks.ReplacementServices.TryGetValue(service.GetType().FullName, out repl)) {
+                // Console.WriteLine($"Found replacement {repl.GetType().FullName}");
                 if (repl is IServiceWrapper)
                     ((IServiceWrapper) repl).Wrap(service);
                 else
@@ -38,6 +44,8 @@ namespace FezEngine.Tools {
             }
 
             orig_AddService(service);
+            if (repl is IServiceWrapper)
+                ServiceHelper.Game.Services.RemoveService(typeof(IServiceWrapper));
         }
 
     }

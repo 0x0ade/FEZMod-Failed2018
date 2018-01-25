@@ -98,7 +98,7 @@ namespace FezGame.Mod.Components {
             GameRTImGui = ImGuiState.Register(GameRT.Target);
             if (prevGameRTImGui != -1 && prevGameRTImGui != GameRTImGui) {
                 // If the ImGui texture got replaced, dispose the old texture.
-                // This can happen if GameRT.Target got replaced.
+                // This can happen if GameRT.Target got replaced when the window resizes.
                 ImGuiState.GetTexture(prevGameRTImGui).Dispose();
                 ImGuiState.Unregister(prevGameRTImGui);
             }
@@ -112,8 +112,7 @@ namespace FezGame.Mod.Components {
 
             if (GameRT != null) {
                 TargetRenderingManager.Resolve(GameRT.Target, true);
-                // GraphicsDevice.Clear(new Color(ClearColor.X, ClearColor.Y, ClearColor.Z, 1f));
-                GraphicsDevice.Clear(Color.White);
+                // GraphicsDevice.Clear(new Color(ClearColor.x, ClearColor.y, ClearColor.z, 1f));
                 GraphicsDevice.SetBlendingMode(BlendingMode.Opaque);
                 TargetRenderingManager.DrawFullscreen(GameRT.Target);
             }
@@ -122,8 +121,14 @@ namespace FezGame.Mod.Components {
 
             ImGuiState.NewFrame(gameTime);
 
+            bool mouseInImGui = ImGui.IsMouseHoveringAnyWindow() || ImGui.IO.WantCaptureMouse;
+            bool keyboardInImGui = ImGui.IO.WantCaptureKeyboard || ImGui.IO.WantTextInput;
+
+            Game.IsMouseVisible &= mouseInImGui;
             if (MouseState is ModMouseStateManager)
-                ((ModMouseStateManager) MouseState).ForceDisable = ImGui.IsMouseHoveringAnyWindow() || ImGui.IO.WantCaptureMouse;
+                ((ModMouseStateManager) MouseState).ForceDisable = mouseInImGui;
+            if (KeyboardState is ModKeyboardStateManager)
+                ((ModKeyboardStateManager) KeyboardState).ForceDisable = keyboardInImGui;
 
             ImGuiLayout();
             ImGuiState.Render();
