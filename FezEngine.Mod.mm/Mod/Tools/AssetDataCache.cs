@@ -40,9 +40,12 @@ namespace FezEngine.Tools {
                 for (int i = 0; i < count; i++) {
                     string path = reader.ReadString();
                     int length = reader.ReadInt32();
-                    // Note: The original packs don't contain the file extensions.
+                    // Note: Packs don't contain the file extensions.
                     // This affects SharedContentManager.ReadAsset, but MemoryContentManager.OpenStream keeps working.
-                    ModContentManager.Add(path, new PackModAsset(pathPak, stream.Position, length));
+                    if (!ModContentManager.Map.ContainsKey(path)) {
+                        ModContentManager.Add(path, new PackModAsset(pathPak, stream.Position, length));
+                    }
+                    stream.Seek(length, SeekOrigin.Current);
                 }
             }
         }

@@ -54,7 +54,7 @@ namespace FezGame.Mod {
 
             if (file.EndsWith(".png")) {
                 type = typeof(Texture2D);
-                file = file.Substring(0, file.Length - 4);
+                return file.Substring(0, file.Length - 4);
             }
 
             return null;
