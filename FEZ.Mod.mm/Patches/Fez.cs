@@ -13,6 +13,7 @@ using Common;
 using FezEngine.Tools;
 using FezGame.Components;
 using FezEngine.Components;
+using MonoMod.BaseLoader;
 
 namespace FezGame {
     class patch_Fez : Fez {
@@ -62,6 +63,7 @@ namespace FezGame {
         public extern void orig_Initialize();
         protected override void Initialize() {
             FezMod.LoadComponentReplacements(this);
+            ModManager.Initialize();
             orig_Initialize();
         }
 

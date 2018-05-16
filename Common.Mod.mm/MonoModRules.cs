@@ -9,7 +9,6 @@ namespace MonoMod {
     class MonoModRules {
 
         static MonoModRules() {
-            Environment.SetEnvironmentVariable("MONOMOD_DEPENDENCY_MISSING_THROW", "0");
         }
 
     }

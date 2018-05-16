@@ -1,6 +1,7 @@
 ﻿using FezEngine.Components;
 using FezEngine.Services;
 using FezEngine.Services.Scripting;
+using FezEngine.Structure;
 using FezEngine.Tools;
 using FezGame.Components;
 using FezGame.Mod.Services;
@@ -57,12 +58,14 @@ namespace FezGame.Mod.Components {
         private RenderTargetHandle GameRT;
         private int GameRTImGui = -1;
 
+        // private RenderTarget2D RT;
+
         public ModGUIHost(Game game)
             : base(game) {
             Instance = this;
 
-            UpdateOrder = -10000;
-            DrawOrder = 10000;
+            UpdateOrder = -100000;
+            DrawOrder = 100000;
 
             ImGuiState = new ImGuiXNAState(game);
 
@@ -122,6 +125,29 @@ namespace FezGame.Mod.Components {
                 }
             }
 
+            GraphicsDevice.PrepareStencilRead(CompareFunction.Always, StencilMask.None);
+            GraphicsDevice.PrepareStencilWrite(StencilMask.None);
+
+            /*
+            if (RT == null ||
+                RT.Width != GraphicsDevice.PresentationParameters.BackBufferWidth ||
+                RT.Height != GraphicsDevice.PresentationParameters.BackBufferHeight
+            ) {
+                if (RT != null)
+                    RT.Dispose();
+                RT = new RenderTarget2D(
+                    GraphicsDevice,
+                    GraphicsDevice.PresentationParameters.BackBufferWidth,
+                    GraphicsDevice.PresentationParameters.BackBufferHeight,
+                    false,
+                    SurfaceFormat.Color,
+                    DepthFormat.None
+                );
+            }
+            */
+
+            // GraphicsDevice.SetRenderTarget(RT);
+
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             ImGuiState.NewFrame(gameTime);
@@ -137,11 +163,11 @@ namespace FezGame.Mod.Components {
 
             ImGuiLayout();
             ImGuiState.Render();
+
+            // GraphicsDevice.SetRenderTarget(null);
+            // TargetRenderingManager.DrawFullscreen(RT);
         }
 
-        float f = 0.0f;
-        bool show_test_window = true;
-        bool show_another_window = false;
         protected virtual void ImGuiLayout() {
             // Render to ImGui window. Works, but the render target is alpha-blended, causing minor issues.
             if (GameRT != null && IsGameWindowOpen) {
@@ -179,32 +205,6 @@ namespace FezGame.Mod.Components {
                 ImGui.End();
 
                 ImGui.PopStyleVar(4);
-            }
-
-            // 1. Show a simple window
-            // Tip: if we don't call ImGui.Begin()/ImGui.End() the widgets appears in a window automatically called "Debug"
-            {
-                ImGui.Text("Hello, world!");
-                ImGui.SliderFloat("float", ref f, 0.0f, 1.0f, null, 1f);
-                ImGui.ColorEdit3("clear color", ref ClearColor, false);
-                if (ImGui.Button("Game Window")) IsGameWindowOpen = !IsGameWindowOpen;
-                if (ImGui.Button("Test Window")) show_test_window = !show_test_window;
-                if (ImGui.Button("Another Window")) show_another_window = !show_another_window;
-                ImGui.Text(string.Format("Application average {0:F3} ms/frame ({1:F1} FPS)", 1000f / ImGui.GetIO().Framerate, ImGui.GetIO().Framerate));
-            }
-
-            // 2. Show another simple window, this time using an explicit Begin/End pair
-            if (show_another_window) {
-                ImGui.SetNextWindowSize(new ImVec2(200, 100), ImGuiCond.FirstUseEver);
-                ImGui.Begin("Another Window", ref show_another_window);
-                ImGui.Text("Hello");
-                ImGui.End();
-            }
-
-            // 3. Show the ImGui test window. Most of the sample code is in ImGui.ShowTestWindow()
-            if (show_test_window) {
-                ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGuiCond.FirstUseEver);
-                ImGui.ShowTestWindow(ref show_test_window);
             }
         }
 
