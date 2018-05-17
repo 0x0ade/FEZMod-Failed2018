@@ -66,8 +66,7 @@ namespace FezGame.Mod {
         }
 
         internal static void LoadComponents(Fez game) {
-            // TODO: Fix ImGui rendering or GameRT rendering.
-            // ServiceHelper.AddComponent(new ModGUIHost(game));
+            ServiceHelper.AddComponent(new ModGUIHost(game));
         }
 
         internal static void DumpAllPacks() {
@@ -85,7 +84,8 @@ namespace FezGame.Mod {
             if (!File.Exists(pathPak))
                 return;
 
-            string pathOutRoot = Path.Combine(ModManager.PathGame, "ModDUMP", Path.GetFileNameWithoutExtension(pathPak));
+            string pak = Path.GetFileNameWithoutExtension(pathPak);
+            string pathOutRoot = Path.Combine(ModManager.PathGame, "ModDUMP", pak);
 
             using (FileStream packStream = File.OpenRead(pathPak))
             using (BinaryReader packReader = new BinaryReader(packStream)) {
@@ -94,12 +94,18 @@ namespace FezGame.Mod {
                     string path = packReader.ReadString();
                     int length = packReader.ReadInt32();
 
-                    // The FEZ 1.12 .pak files store the raw fxb files, which should be dumped with the fxb extensions.
-                    if (path.StartsWith("effects")) {
+                    if (pak == "Music") {
+                        // The music .pak contains basic .ogg files.
+                        path += ".ogg";
+                            
+                    } else if (path.StartsWith("effects")) {
+                        // The FEZ 1.12 .paks contains the raw fxb files, which should be dumped with their original fxb extension.
                         path += ".fxb";
+
                     } else {
                         path += ".xnb";
                     }
+
                     string pathOut = Path.Combine(pathOutRoot, path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
                     string pathOutDir = Path.GetDirectoryName(pathOut);
 
@@ -107,6 +113,8 @@ namespace FezGame.Mod {
                         Directory.CreateDirectory(pathOutDir);
 
                     Console.WriteLine($"Dumping {pathOut}");
+                    if (File.Exists(pathOut))
+                        File.Delete(pathOut);
                     using (FileStream dumpStream = File.OpenWrite(pathOut))
                         dumpStream.Write(packReader.ReadBytes(length), 0, length);
                 }

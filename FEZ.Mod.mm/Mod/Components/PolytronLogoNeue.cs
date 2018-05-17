@@ -154,7 +154,7 @@ namespace FezGame.Components {
             LogoMesh.Draw();
 
             spriteBatch.Begin();
-            spriteBatch.Draw(PolytronText, center + new Vector2((-PolytronText.Width) / 2f, 120f * viewScale).Round(), new Color(1f, 1f, 1f, Opacity * ease));
+            spriteBatch.Draw(PolytronText, center + new Vector2((-PolytronText.Width) / 2f, (124f + 120f / StripColors.Length) * viewScale).Round(), new Color(1f, 1f, 1f, Opacity * ease));
             spriteBatch.End();
         }
 

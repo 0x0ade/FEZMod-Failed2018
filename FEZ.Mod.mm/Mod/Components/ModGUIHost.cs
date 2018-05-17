@@ -22,30 +22,18 @@ namespace FezGame.Mod.Components {
 
         public static ModGUIHost Instance;
 
-        [ServiceDependency]
-        public IMouseStateManager MouseState { get; set; }
-        [ServiceDependency]
-        public IInputManager InputManager { get; set; }
-        [ServiceDependency]
-        public IKeyboardStateManager KeyboardState { get; set; }
-        [ServiceDependency]
-        public IGameService GameService { get; set; }
-        [ServiceDependency]
-        public IGameStateManager GameState { get; set; }
-        [ServiceDependency]
-        public IGameCameraManager CameraManager { get; set; }
-        [ServiceDependency]
-        public IFontManager FontManager { get; set; }
-        [ServiceDependency]
-        public IPlayerManager PlayerManager { get; set; }
-        [ServiceDependency]
-        public IGameLevelManager LevelManager { get; set; }
-        [ServiceDependency]
-        public ILevelMaterializer LevelMaterializer { get; set; }
-        [ServiceDependency]
-        public IContentManagerProvider CMProvider { get; set; }
-        [ServiceDependency]
-        public ITargetRenderingManager TargetRenderingManager { get; set; }
+        [ServiceDependency] public IMouseStateManager MouseState { get; set; }
+        [ServiceDependency] public IInputManager InputManager { get; set; }
+        [ServiceDependency] public IKeyboardStateManager KeyboardState { get; set; }
+        [ServiceDependency] public IGameService GameService { get; set; }
+        [ServiceDependency] public IGameStateManager GameState { get; set; }
+        [ServiceDependency] public IGameCameraManager CameraManager { get; set; }
+        [ServiceDependency] public IFontManager FontManager { get; set; }
+        [ServiceDependency] public IPlayerManager PlayerManager { get; set; }
+        [ServiceDependency] public IGameLevelManager LevelManager { get; set; }
+        [ServiceDependency] public ILevelMaterializer LevelMaterializer { get; set; }
+        [ServiceDependency] public IContentManagerProvider CMProvider { get; set; }
+        [ServiceDependency] public ITargetRenderingManager TargetRenderingManager { get; set; }
 
         public readonly ImGuiXNAState ImGuiState;
 
