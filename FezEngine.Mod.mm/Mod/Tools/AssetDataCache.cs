@@ -14,10 +14,8 @@ namespace FezEngine.Tools {
     public static class AssetDataCache {
 
         public static Dictionary<string, byte[]> Persistent = new Dictionary<string, byte[]>();
-        public static Dictionary<string, DataCacheItem> Temporary = new Dictionary<string, DataCacheItem>();
-        public static Dictionary<string, byte[]> Preloaded = new Dictionary<string, byte[]>();
 
-        public static void CachePackPersistent(string pathPak) {
+        public static void PackPrecache(string pathPak) {
             if (!File.Exists(pathPak))
                 return;
             using (FileStream packStream = File.OpenRead(pathPak))
@@ -31,7 +29,7 @@ namespace FezEngine.Tools {
             }
         }
 
-        public static void ScanPackMetadata(string pathPak) {
+        public static void PackScanMeta(string pathPak) {
             if (!File.Exists(pathPak))
                 return;
             using (FileStream stream = File.OpenRead(pathPak))
@@ -50,23 +48,5 @@ namespace FezEngine.Tools {
             }
         }
 
-    }
-
-    public class DataCacheItem {
-        public byte[] Data;
-        public int References;
-        public int Age;
-    }
-
-    public enum DataCacheMode {
-        Default,
-        Disabled,
-        Smart
-    }
-
-    public enum MusicCacheMode {
-        Default,
-        Disabled,
-        Enabled
     }
 }

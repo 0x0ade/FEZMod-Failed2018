@@ -52,31 +52,9 @@ namespace FezEngine.Tools {
             if (AssetDataCache.Persistent.TryGetValue(assetName, out data))
                 return new MemoryStream(data);
 
-            DataCacheItem cached;
-            if (AssetDataCache.Temporary.TryGetValue(assetName, out cached)) {
-                cached.References++;
-                cached.Age = 0;
-                return new MemoryStream(data);
-            }
-
-            if (AssetDataCache.Preloaded.TryGetValue(assetName, out data)) {
-                AssetDataCache.Temporary[assetName] = new DataCacheItem {
-                    Data = data,
-                    References = 1
-                };
-                return new MemoryStream(data);
-            }
-
             ModAsset modAsset;
-            if (ModContentManager.TryGet(assetName.ToLowerInvariant().Replace('\\', '/'), out modAsset)) {
-                if (CoreModule.Settings.DataCache == DataCacheMode.Smart) {
-                    AssetDataCache.Temporary[assetName] = new DataCacheItem() {
-                        Data = modAsset.Data,
-                        References = 1
-                    };
-                }
+            if (ModContentManager.TryGet(assetName.ToLowerInvariant().Replace('\\', '/'), out modAsset))
                 return modAsset.Stream;
-            }
 
             return orig_OpenStream(assetName);
         }
@@ -91,29 +69,13 @@ namespace FezEngine.Tools {
 
         public extern void orig_LoadEssentials();
         public new void LoadEssentials() {
-            if (CoreModule.Settings.DataCache == DataCacheMode.Default) {
-                orig_LoadEssentials();
-                return;
-            }
-
-            if (CoreModule.Settings.DataCache == DataCacheMode.Smart) {
-                AssetDataCache.CachePackPersistent(Path.Combine(RootDirectory, "Essentials.pak"));
-                AssetDataCache.CachePackPersistent(Path.Combine(RootDirectory, "Updates.pak"));
-                return;
-            }
-
-            AssetDataCache.ScanPackMetadata(Path.Combine(RootDirectory, "Essentials.pak"));
-            AssetDataCache.ScanPackMetadata(Path.Combine(RootDirectory, "Updates.pak"));
+            AssetDataCache.PackPrecache(Path.Combine(RootDirectory, "Essentials.pak"));
+            AssetDataCache.PackPrecache(Path.Combine(RootDirectory, "Updates.pak"));
         }
 
         public extern void orig_Preload();
         public new void Preload() {
-            if (CoreModule.Settings.DataCache == DataCacheMode.Default) {
-                orig_Preload();
-                return;
-            }
-
-            AssetDataCache.ScanPackMetadata(Path.Combine(RootDirectory, "Other.pak"));
+            AssetDataCache.PackScanMeta(Path.Combine(RootDirectory, "Other.pak"));
         }
 
     }
