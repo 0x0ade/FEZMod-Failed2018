@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEZ.Mod.mm", "FEZ.Mod.mm\FE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FezEngine.Mod.mm", "FezEngine.Mod.mm\FezEngine.Mod.mm.csproj", "{A4FB611D-11D5-4744-9AFD-5FA2B5492291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImGuiCS", "libs-projs\ImGuiCS\ImGuiCS\ImGuiCS.csproj", "{9BC0F56F-8BC0-4A95-B064-466921025C60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImGuiCS", "lib-projs\ImGuiCS\ImGuiCS\ImGuiCS.csproj", "{9BC0F56F-8BC0-4A95-B064-466921025C60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImGuiFNA", "libs-projs\ImGuiCS\ImGuiFNA\ImGuiFNA.csproj", "{004B5A34-3FF9-4080-B003-45BEAFE7519F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImGuiFNA", "lib-projs\ImGuiCS\ImGuiFNA\ImGuiFNA.csproj", "{004B5A34-3FF9-4080-B003-45BEAFE7519F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Mod.mm", "Common.Mod.mm\Common.Mod.mm.csproj", "{A7EC94CE-C0B0-4B8E-8D78-D272F709B457}"
 EndProject

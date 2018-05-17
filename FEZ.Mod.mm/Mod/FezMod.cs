@@ -66,7 +66,8 @@ namespace FezGame.Mod {
         }
 
         internal static void LoadComponents(Fez game) {
-            ServiceHelper.AddComponent(new ModGUIHost(game));
+            // TODO: Fix ImGui rendering or GameRT rendering.
+            // ServiceHelper.AddComponent(new ModGUIHost(game));
         }
 
         internal static void DumpAllPacks() {
