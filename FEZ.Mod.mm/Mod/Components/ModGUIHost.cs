@@ -1,4 +1,5 @@
 ﻿using FezEngine.Components;
+using FezEngine.Mod;
 using FezEngine.Services;
 using FezEngine.Services.Scripting;
 using FezEngine.Structure;
@@ -37,16 +38,10 @@ namespace FezGame.Mod.Components {
 
         public readonly ImGuiXNAState ImGuiState;
 
-        public ImVec3 ClearColor = new ImVec3(114f / 255f, 144f / 255f, 154f / 255f);
-
-        public bool IsGameWindowOpen = false;
-
         private bool FinishedLoading = false;
 
-        private RenderTargetHandle GameRT;
-        private int GameRTImGui = -1;
-
-        // private RenderTarget2D RT;
+        private RenderTarget2D RT;
+        private SpriteBatch SpriteBatch;
 
         public ModGUIHost(Game game)
             : base(game) {
@@ -72,6 +67,8 @@ namespace FezGame.Mod.Components {
             DrawActionScheduler.Schedule(() => {
                 ImGuiState.BuildTextureAtlas();
 
+                SpriteBatch = new SpriteBatch(GraphicsDevice);
+
                 FinishedLoading = true;
             });
         }
@@ -81,20 +78,6 @@ namespace FezGame.Mod.Components {
 
             if (!FinishedLoading)
                 return;
-
-            if (GameRT == null) {
-                // Generate and schedule the render target in update - before anything renders.
-                GameRT = TargetRenderingManager.TakeTarget();
-                TargetRenderingManager.ScheduleHook(DrawOrder, GameRT.Target);
-            }
-            var prevGameRTImGui = GameRTImGui;
-            GameRTImGui = ImGuiState.Register(GameRT.Target);
-            if (prevGameRTImGui != -1 && prevGameRTImGui != GameRTImGui) {
-                // If the ImGui texture got replaced, dispose the old texture.
-                // This can happen if GameRT.Target got replaced when the window resizes.
-                ImGuiState.GetTexture(prevGameRTImGui).Dispose();
-                ImGuiState.Unregister(prevGameRTImGui);
-            }
         }
 
         public override void Draw(GameTime gameTime) {
@@ -103,20 +86,9 @@ namespace FezGame.Mod.Components {
             if (!FinishedLoading)
                 return;
 
-            if (GameRT != null) {
-                TargetRenderingManager.Resolve(GameRT.Target, true);
-                if (IsGameWindowOpen) {
-                    GraphicsDevice.Clear(new Color(ClearColor.x, ClearColor.y, ClearColor.z, 1f));
-                } else {
-                    GraphicsDevice.SetBlendingMode(BlendingMode.Opaque);
-                    TargetRenderingManager.DrawFullscreen(GameRT.Target);
-                }
-            }
-
             GraphicsDevice.PrepareStencilRead(CompareFunction.Always, StencilMask.None);
             GraphicsDevice.PrepareStencilWrite(StencilMask.None);
 
-            /*
             if (RT == null ||
                 RT.Width != GraphicsDevice.PresentationParameters.BackBufferWidth ||
                 RT.Height != GraphicsDevice.PresentationParameters.BackBufferHeight
@@ -129,14 +101,17 @@ namespace FezGame.Mod.Components {
                     GraphicsDevice.PresentationParameters.BackBufferHeight,
                     false,
                     SurfaceFormat.Color,
-                    DepthFormat.None
+                    DepthFormat.None,
+                    0,
+                    RenderTargetUsage.PreserveContents
                 );
             }
-            */
 
-            // GraphicsDevice.SetRenderTarget(RT);
-
+            RenderTargetBinding[] prevRT = FNAHooks.PrevRenderTargets;
+            GraphicsDevice.SetRenderTarget(RT);
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+
+            GraphicsDevice.Clear(Color.Transparent);
 
             ImGuiState.NewFrame(gameTime);
 
@@ -152,47 +127,16 @@ namespace FezGame.Mod.Components {
             ImGuiLayout();
             ImGuiState.Render();
 
-            // GraphicsDevice.SetRenderTarget(null);
-            // TargetRenderingManager.DrawFullscreen(RT);
+            FNAHooks.SkipClear++;
+            GraphicsDevice.SetRenderTargets(prevRT);
+            TargetRenderingManager.DrawFullscreen(RT);
         }
 
+        bool show_test_window = true;
         protected virtual void ImGuiLayout() {
-            // Render to ImGui window. Works, but the render target is alpha-blended, causing minor issues.
-            if (GameRT != null && IsGameWindowOpen) {
-                // ImGui.SetNextWindowPos(new ImVec2(-8f, -8f), ImGuiCond.Always);
-                // ImGui.SetNextWindowSize(new ImVec2(GameRT.Target.Width, GameRT.Target.Height), ImGuiCond.Always);
-                ImGui.SetNextWindowSize(new ImVec2(GameRT.Target.Width / 2f, GameRT.Target.Height / 2f), ImGuiCond.Once);
-                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new ImVec2(0f, 0f));
-                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0f);
-                ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new ImVec2(0f, 0f));
-                ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f);
-                ImGui.Begin(
-                    "Game",
-                    ref IsGameWindowOpen,
-                    ImGuiWindowFlags.NoFocusOnAppearing |
-                    ImGuiWindowFlags.NoScrollbar |
-                    ImGuiWindowFlags.NoScrollWithMouse |
-                    ImGuiWindowFlags.NoCollapse |
-                    ImGuiWindowFlags.NoSavedSettings |
-                    ImGuiWindowFlags.NoTitleBar |
-                    ImGuiWindowFlags.NoMove |
-                    ImGuiWindowFlags.NoResize
-                );
-
-                ImVec2 gameWindowSize = ImGui.GetWindowSize();
-
-                ImGui.Image(
-                    GameRTImGui,
-                    new ImVec2(gameWindowSize.x, gameWindowSize.y),
-                    new ImVec2(0f, 0f),
-                    new ImVec2(1f, 1f),
-                    new ImVec4(1f, 1f, 1f, 1f),
-                    new ImVec4(0f, 0f, 0f, 0f)
-                );
-
-                ImGui.End();
-
-                ImGui.PopStyleVar(4);
+            if (show_test_window) {
+                ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGuiCond.FirstUseEver);
+                ImGui.ShowTestWindow(ref show_test_window);
             }
         }
 

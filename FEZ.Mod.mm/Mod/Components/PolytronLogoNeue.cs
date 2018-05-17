@@ -66,7 +66,7 @@ namespace FezGame.Components {
             sPolytron = CMProvider.Get(CM.Intro).Load<SoundEffect>("Sounds/Intro/PolytronJingle");
 
             DrawActionScheduler.Schedule(delegate {
-                PolytronText = CMProvider.Get(CM.Intro).Load<Texture2D>("Other Textures/splash/polytron" + (viewScale >= 1.5f ? "_1440" : ""));
+                PolytronText = CMProvider.Get(CM.Intro).Load<Texture2D>("Other Textures/splash/polytron_neue" + (viewScale >= 1.5f ? "_1440" : ""));
                 spriteBatch = new SpriteBatch(GraphicsDevice);
                 LogoMesh.Effect = new DefaultEffect.VertexColored {
                     ForcedProjectionMatrix = Matrix.CreateOrthographic(320f / 224f, 320f / 224f, 0.1f, 100f),

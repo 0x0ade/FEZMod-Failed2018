@@ -35,6 +35,8 @@ namespace FezGame.Mod {
             ModContentManager.Crawl(new DirectoryModContent(modContent));
             ModContentManager.Crawl(new AssemblyModContent(Assembly.GetEntryAssembly()));
 
+            FNAHooks.Initialize();
+
             Queue<string> queue = new Queue<string>(args);
             while (queue.Count > 0) {
                 string arg = queue.Dequeue();
