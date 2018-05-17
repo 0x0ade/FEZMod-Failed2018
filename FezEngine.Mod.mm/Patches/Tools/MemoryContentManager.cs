@@ -36,7 +36,10 @@ namespace FezEngine.Tools {
                 assetNamesFromCache = MemoryContentHelper.Map.Count;
                 assetNames.AddRange(MemoryContentHelper.Map.Keys);
 
-                assetNames = assetNames.Distinct().ToList();
+                assetNames = assetNames
+                    .Select(name => name.Replace('/', '\\')) // Game expects \ over /
+                    .Distinct()
+                    .ToList();
 
                 return assetNames;
             }
