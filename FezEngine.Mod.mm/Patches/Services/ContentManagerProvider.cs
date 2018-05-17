@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
 
 using FezEngine.Mod;
+using FezEngine.Mod.Core;
 using FezEngine.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -33,7 +34,7 @@ namespace FezEngine.Services {
 
         private extern void orig_CleanAndPrecache();
         private void CleanAndPrecache() {
-            if (FezEngineMod.DataCache != DataCacheMode.Smart) {
+            if (CoreModule.Settings.DataCache != DataCacheMode.Smart) {
                 orig_CleanAndPrecache();
                 return;
             }

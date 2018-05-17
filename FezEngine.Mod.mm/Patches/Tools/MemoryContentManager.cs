@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
 
 using FezEngine.Mod;
+using FezEngine.Mod.Core;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod;
 using MonoMod.BaseLoader;
@@ -68,7 +69,7 @@ namespace FezEngine.Tools {
 
             ModAsset modAsset;
             if (ModContentManager.TryGet(assetName.ToLowerInvariant().Replace('\\', '/'), out modAsset)) {
-                if (FezEngineMod.DataCache == DataCacheMode.Smart) {
+                if (CoreModule.Settings.DataCache == DataCacheMode.Smart) {
                     AssetDataCache.Temporary[assetName] = new DataCacheItem() {
                         Data = modAsset.Data,
                         References = 1
@@ -90,12 +91,12 @@ namespace FezEngine.Tools {
 
         public extern void orig_LoadEssentials();
         public new void LoadEssentials() {
-            if (FezEngineMod.DataCache == DataCacheMode.Default) {
+            if (CoreModule.Settings.DataCache == DataCacheMode.Default) {
                 orig_LoadEssentials();
                 return;
             }
 
-            if (FezEngineMod.DataCache == DataCacheMode.Smart) {
+            if (CoreModule.Settings.DataCache == DataCacheMode.Smart) {
                 AssetDataCache.CachePackPersistent(Path.Combine(RootDirectory, "Essentials.pak"));
                 AssetDataCache.CachePackPersistent(Path.Combine(RootDirectory, "Updates.pak"));
                 return;
@@ -107,7 +108,7 @@ namespace FezEngine.Tools {
 
         public extern void orig_Preload();
         public new void Preload() {
-            if (FezEngineMod.DataCache == DataCacheMode.Default) {
+            if (CoreModule.Settings.DataCache == DataCacheMode.Default) {
                 orig_Preload();
                 return;
             }

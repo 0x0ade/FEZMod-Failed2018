@@ -1,4 +1,5 @@
 ﻿using FezEngine.Mod;
+using FezEngine.Mod.Core;
 using FezEngine.Tools;
 using FezGame.Mod.Components;
 using FezGame.Mod.Services;
@@ -27,7 +28,7 @@ namespace FezGame.Mod {
         internal static void Boot(params string[] args) {
             ModContentManager.OnGuessType += ContentGuessType;
 
-            ModManager.Boot("FEZMod", VersionString);
+            ModManager.Boot("FEZMod", VersionString, new CoreModule());
 
             string modContent = Path.Combine(ModManager.PathGame, "ModContent");
             if (!Directory.Exists(modContent))
