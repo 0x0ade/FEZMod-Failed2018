@@ -38,7 +38,7 @@ namespace FezGame.Mod.Components {
 
         public readonly ImGuiXNAState ImGuiState;
 
-        private bool FinishedLoading = false;
+        public bool FinishedLoading { get; private set; } = false;
 
         private RenderTarget2D RT;
         private SpriteBatch SpriteBatch;
@@ -54,11 +54,8 @@ namespace FezGame.Mod.Components {
 
             if (!File.Exists("imgui.ini"))
                 File.WriteAllText("imgui.ini", "");
-        }
 
-        public override void Initialize() {
-            base.Initialize();
-
+            ServiceHelper.AddComponent(new ModGUIPreHost(game));
         }
 
         protected override void LoadContent() {
@@ -71,13 +68,6 @@ namespace FezGame.Mod.Components {
 
                 FinishedLoading = true;
             });
-        }
-
-        public override void Update(GameTime gameTime) {
-            base.Update(gameTime);
-
-            if (!FinishedLoading)
-                return;
         }
 
         public override void Draw(GameTime gameTime) {
@@ -113,7 +103,8 @@ namespace FezGame.Mod.Components {
 
             GraphicsDevice.Clear(Color.Transparent);
 
-            ImGuiState.NewFrame(gameTime);
+            // NewFrame in ModGUIPreHost.Draw
+            ImGuiLayout();
 
             bool mouseInImGui = ImGui.IsMouseHoveringAnyWindow() || ImGui.IO.WantCaptureMouse;
             bool keyboardInImGui = ImGui.IO.WantCaptureKeyboard || ImGui.IO.WantTextInput;
@@ -124,7 +115,6 @@ namespace FezGame.Mod.Components {
             if (KeyboardState is ModKeyboardStateManager)
                 ((ModKeyboardStateManager) KeyboardState).ForceDisable = keyboardInImGui;
 
-            ImGuiLayout();
             ImGuiState.Render();
 
             FNAHooks.SkipClear++;
@@ -132,12 +122,7 @@ namespace FezGame.Mod.Components {
             TargetRenderingManager.DrawFullscreen(RT);
         }
 
-        bool show_test_window = true;
         protected virtual void ImGuiLayout() {
-            if (show_test_window) {
-                ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGuiCond.FirstUseEver);
-                ImGui.ShowTestWindow(ref show_test_window);
-            }
         }
 
     }
