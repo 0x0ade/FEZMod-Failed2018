@@ -12,13 +12,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FezEngine.Mod {
-    public class PackModAsset : ModAsset {
+    public class PackedAsset : ModAsset {
 
         public string PathPak;
         public long Position;
         public int Length;
 
-        public PackModAsset(string pathPak, long position, int length) {
+        public PackedAsset(string pathPak, long position, int length) {
             PathPak = pathPak;
             Position = position;
             Length = length;

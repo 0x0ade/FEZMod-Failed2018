@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoMod {
-    class MonoModRules {
+    static class MonoModRules {
 
         static MonoModRules() {
         }

@@ -1,4 +1,5 @@
-﻿using MonoMod.InlineRT;
+﻿using Mono.Cecil;
+using MonoMod.InlineRT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoMod {
-    class MonoModRules {
+    static class MonoModRules {
 
         static MonoModRules() {
         }

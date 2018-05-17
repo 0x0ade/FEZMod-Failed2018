@@ -16,15 +16,16 @@ using System.Threading.Tasks;
 namespace FezEngine.Tools {
     class patch_MemoryContentManager : MemoryContentManager {
 
-        private static Dictionary<string, byte[]> cachedAssets;
-
         private static List<string> assetNames;
         private static int assetNamesFromMetadata;
         private static int assetNamesFromCache;
 
         public static new IEnumerable<string> AssetNames {
+            [MonoModReplace]
             get {
-                if (assetNames != null && assetNamesFromMetadata == ModContentManager.Map.Count)
+                if (assetNames != null &&
+                    assetNamesFromMetadata == ModContentManager.Map.Count &&
+                    assetNamesFromCache == MemoryContentHelper.Map.Count)
                     return assetNames;
 
                 assetNames = new List<string>();
@@ -32,8 +33,8 @@ namespace FezEngine.Tools {
                 assetNamesFromMetadata = ModContentManager.Map.Count;
                 assetNames.AddRange(ModContentManager.Map.Keys);
 
-                assetNamesFromCache = cachedAssets.Count;
-                assetNames.AddRange(cachedAssets.Keys);
+                assetNamesFromCache = MemoryContentHelper.Map.Count;
+                assetNames.AddRange(MemoryContentHelper.Map.Keys);
 
                 assetNames = assetNames.Distinct().ToList();
 
@@ -46,36 +47,43 @@ namespace FezEngine.Tools {
             // no-op.
         }
 
-        protected extern Stream orig_OpenStream(string assetName);
+        [MonoModReplace]
         protected override Stream OpenStream(string assetName) {
-            byte[] data;
-            if (AssetDataCache.Persistent.TryGetValue(assetName, out data))
-                return new MemoryStream(data);
-
+            assetName = assetName.ToLowerInvariant().Replace('\\', '/');
             ModAsset modAsset;
-            if (ModContentManager.TryGet(assetName.ToLowerInvariant().Replace('\\', '/'), out modAsset))
+
+            if (ModContentManager.TryGet(assetName, out modAsset))
                 return modAsset.Stream;
 
-            return orig_OpenStream(assetName);
+            if (MemoryContentHelper.Map.TryGetValue(assetName, out modAsset))
+                return modAsset.Stream;
+
+            throw new FileNotFoundException($"Asset not found: {assetName}");
         }
 
-        public static extern bool orig_AssetExists(string assetName);
+        [MonoModReplace]
         public static new bool AssetExists(string assetName) {
-            if (ModContentManager.Get(assetName.ToLowerInvariant().Replace('\\', '/')) != null)
+            assetName = assetName.ToLowerInvariant().Replace('\\', '/');
+
+            if (ModContentManager.Get(assetName) != null)
                 return true;
 
-            return orig_AssetExists(assetName);
+            if (MemoryContentHelper.Map.ContainsKey(assetName))
+                return true;
+
+            return false;
         }
 
-        public extern void orig_LoadEssentials();
+        [MonoModReplace]
         public new void LoadEssentials() {
-            AssetDataCache.PackPrecache(Path.Combine(RootDirectory, "Essentials.pak"));
-            AssetDataCache.PackPrecache(Path.Combine(RootDirectory, "Updates.pak"));
+            MemoryContentHelper.IngestPack(Path.Combine(RootDirectory, "Essentials.pak"), precache: true);
         }
 
-        public extern void orig_Preload();
+        [MonoModReplace]
         public new void Preload() {
-            AssetDataCache.PackScanMeta(Path.Combine(RootDirectory, "Other.pak"));
+            MemoryContentHelper.IngestPack(Path.Combine(RootDirectory, "Updates.pak"), precache: true);
+            // Game originally precaches Other.pak - let's just scan it instead.
+            MemoryContentHelper.IngestPack(Path.Combine(RootDirectory, "Other.pak"), precache: false);
         }
 
     }

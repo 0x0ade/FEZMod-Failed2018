@@ -21,9 +21,9 @@ namespace FezEngine.Tools {
 
             private extern T orig_ReadAsset<T>(string assetName) where T : class;
             private T ReadAsset<T>(string assetName) where T : class {
-                string modName = assetName.ToLowerInvariant().Replace('/', '\\');
+                string modName = assetName.ToLowerInvariant().Replace('\\', '/');
                 ModAsset mod;
-                if (ModContentManager.TryGet(modName, out mod)) {
+                if (ModContentManager.TryGet<T>(modName, out mod)) {
                     if (typeof(T) == typeof(Texture2D)) {
                         using (Stream s = mod.Stream)
                             return Texture2D.FromStream(ServiceHelper.Game.GraphicsDevice, s) as T;
